@@ -43,17 +43,32 @@ for v in voicings:
     v['pcs'] = set(SCALE_PC[ch] for ch in v['lhNotes']+v['rhNotes'] if ch in SCALE_PC)
 
 # ── Helpers ──
+_current_key_accidentals = {}  # set per hymn: {'F': 1.0, 'C': 1.0} etc.
+
+def set_key_for_abc(key_name):
+    """Set the current key so pitch_to_abc can omit key-signature accidentals."""
+    global _current_key_accidentals
+    import music21
+    try:
+        k = music21.key.Key(key_name)
+        _current_key_accidentals = {p.step: p.accidental.alter for p in k.alteredPitches}
+    except:
+        _current_key_accidentals = {}
+
 def pitch_to_abc(pitch, ql):
     name = pitch.step
     octave = pitch.octave if pitch.octave is not None else 4
     acc = ''
     if pitch.accidental:
         a = pitch.accidental.alter
-        if a == 1: acc = '^'
-        elif a == -1: acc = '_'
-        elif a == 2: acc = '^^'
-        elif a == -2: acc = '__'
-        elif a == 0: acc = '='
+        # Only write accidental if it differs from key signature
+        key_acc = _current_key_accidentals.get(name, 0)
+        if a != key_acc:
+            if a == 1: acc = '^'
+            elif a == -1: acc = '_'
+            elif a == 2: acc = '^^'
+            elif a == -2: acc = '__'
+            elif a == 0: acc = '='  # natural cancels key sig
     if octave >= 5:
         abc = acc + name.lower() + "'" * (octave - 5)
     elif octave == 4:
@@ -189,6 +204,7 @@ for ti, (tnum, chunk) in enumerate(sorted(tune_chunks.items())):
     # Parse soprano with music21 for correct melody
     sop_abc = header + '\n' + ' '.join(voice_music['S1V1'])
     try:
+        set_key_for_abc(key_clean)
         sop_score = music21.converter.parse(sop_abc, format='abc')
     except Exception as e:
         print(f"  Skip X:{tnum} soprano parse: {e}", file=sys.stderr)
