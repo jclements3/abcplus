@@ -173,6 +173,114 @@ def ex_syncopation(key, start_oct=3):
     lh = ' '.join(lh_parts) + ' |]'
     return rh, lh
 
+def ex_contrary_third(key, start_oct=4):
+    """Contrary motion starting a third apart."""
+    notes_up = scale_abc(key, start_oct, 1)
+    notes_down = list(reversed(scale_abc(key, start_oct - 1, 1)))
+    max_n = min(len(notes_up), len(notes_down), 8)
+    # RH starts on 3rd degree
+    rh = ' '.join(notes_up[2:2+max_n]) + ' | ' + ' '.join(reversed(notes_up[2:2+max_n])) + ' |]'
+    lh = ' '.join(notes_down[:max_n]) + ' | ' + ' '.join(reversed(notes_down[:max_n])) + ' |]'
+    return rh, lh
+
+def ex_contrary_sixth(key, start_oct=4):
+    """Contrary motion starting a sixth apart."""
+    notes_up = scale_abc(key, start_oct, 1)
+    notes_down = list(reversed(scale_abc(key, start_oct - 1, 1)))
+    max_n = min(len(notes_up), len(notes_down), 8)
+    rh = ' '.join(notes_up[5:5+max_n] if len(notes_up) > 5+max_n else notes_up[:max_n]) + ' |]'
+    lh = ' '.join(notes_down[:max_n]) + ' |]'
+    return rh, lh
+
+def ex_scale_thirds(key, start_oct=3):
+    """Scale in parallel thirds - both hands play diatonic thirds."""
+    notes = scale_abc(key, start_oct, 2)
+    rh_pairs = []
+    lh_pairs = []
+    for i in range(0, min(len(notes)-2, 14), 1):
+        rh_pairs.append(f'[{notes[i+2]}{notes[i]}]')
+    for i in range(0, min(len(notes)-2, 14), 1):
+        lh_n = scale_abc(key, start_oct-1, 2)
+        if i+2 < len(lh_n):
+            lh_pairs.append(f'[{lh_n[i+2]}{lh_n[i]}]')
+    rh = ' '.join(rh_pairs[:8]) + ' | ' + ' '.join(rh_pairs[8:14]) + ' |]'
+    lh = ' '.join(lh_pairs[:8]) + ' | ' + ' '.join(lh_pairs[8:14]) + ' |]'
+    return rh, lh
+
+def ex_double_notes(key, start_oct=3):
+    """Double note patterns - repeated notes with shifts."""
+    notes = scale_abc(key, start_oct, 2)
+    notes_lo = scale_abc(key, start_oct-1, 2)
+    rh_parts = []
+    lh_parts = []
+    for i in range(min(len(notes)-1, 8)):
+        rh_parts.append(f'{notes[i]}{notes[i]}')
+        lh_parts.append(f'{notes_lo[i]}{notes_lo[i]}')
+    rh = ' '.join(rh_parts) + ' |]'
+    lh = ' '.join(lh_parts) + ' |]'
+    return rh, lh
+
+def ex_rapid_scale(key, start_oct=3):
+    """Rapid scale runs - 16th notes ascending and descending."""
+    notes = scale_abc(key, start_oct, 2)
+    max_n = min(len(notes), 16)
+    rh = ''.join(notes[:max_n]) + ' | ' + ''.join(reversed(notes[:max_n])) + ' |]'
+    lh_n = scale_abc(key, start_oct-1, 2)
+    max_l = min(len(lh_n), 16)
+    lh = ''.join(lh_n[:max_l]) + ' | ' + ''.join(reversed(lh_n[:max_l])) + ' |]'
+    return rh, lh
+
+def ex_tremolo(key, start_oct=3):
+    """Tremolo - rapid alternation between two notes."""
+    notes = scale_abc(key, start_oct, 2)
+    rh_parts = []
+    lh_parts = []
+    for i in range(0, min(len(notes)-2, 8), 2):
+        rh_parts.append(f'{notes[i]}{notes[i+2]}{notes[i]}{notes[i+2]}')
+        ln = scale_abc(key, start_oct-1, 2)
+        if i+2 < len(ln):
+            lh_parts.append(f'{ln[i]}{ln[i+2]}{ln[i]}{ln[i+2]}')
+    rh = ' '.join(rh_parts) + ' |]'
+    lh = ' '.join(lh_parts) + ' |]'
+    return rh, lh
+
+def ex_arp_extended(key, start_oct=2):
+    """Extended arpeggios spanning 3 octaves."""
+    notes = scale_abc(key, start_oct, 3)
+    # chord tones: 0,2,4,7,9,11,14,16,18,21
+    ct = [i for i in [0,2,4,7,9,11,14,16,18,21] if i < len(notes)]
+    rh_notes = [notes[i] for i in ct if i >= len(ct)//2]
+    lh_notes = [notes[i] for i in ct if i < len(ct)//2 + 1]
+    rh = ' '.join(rh_notes) + ' | ' + ' '.join(reversed(rh_notes)) + ' |]'
+    lh = ' '.join(lh_notes) + ' | ' + ' '.join(reversed(lh_notes)) + ' |]'
+    return rh, lh
+
+def ex_scale_rh_arp_lh(key, start_oct=3):
+    """RH plays scale while LH plays arpeggios - contrasting."""
+    notes = scale_abc(key, start_oct+1, 1)
+    lh_n = scale_abc(key, start_oct-1, 2)
+    rh = ' '.join(notes) + ' | ' + ' '.join(reversed(notes)) + ' |]'
+    # LH arpeggio pattern
+    if len(lh_n) >= 8:
+        lh = f'{lh_n[0]} {lh_n[2]} {lh_n[4]} {lh_n[7]} {lh_n[4]} {lh_n[2]} {lh_n[0]} {lh_n[0]} | '
+        lh += f'{lh_n[0]} {lh_n[2]} {lh_n[4]} {lh_n[7]} {lh_n[4]} {lh_n[2]} {lh_n[0]} {lh_n[0]} |]'
+    else:
+        lh = ' '.join(lh_n) + ' |]'
+    return rh, lh
+
+def ex_chord_rh_scale_lh(key, start_oct=3):
+    """RH plays chords while LH plays scale - contrasting."""
+    notes = scale_abc(key, start_oct+1, 1)
+    lh_n = scale_abc(key, start_oct-1, 2)
+    max_l = min(len(lh_n), 16)
+    # RH held chords
+    if len(notes) >= 5:
+        rh = f'[{notes[0]}{notes[2]}{notes[4]}]4 [{notes[0]}{notes[2]}{notes[4]}]4 |]'
+    else:
+        rh = ' '.join(notes) + ' |]'
+    lh = ' '.join(lh_n[:max_l]) + ' |]'
+    return rh, lh
+
 # ── Build exercises ──
 
 def abc_drill(xnum, title, meter, unit, rh, lh, key='C', tempo=72):
@@ -199,9 +307,18 @@ PATTERNS = [
     ('Tenths', 'C', '1/4', ex_tenths),
     ('Extended', 'C', '1/4', ex_extended),
     ('Contrary Octave', 'C', '1/4', ex_contrary),
+    ('Contrary Third', 'C', '1/4', ex_contrary_third),
+    ('Contrary Sixth', 'C', '1/4', ex_contrary_sixth),
     ('Arpeggios', 'C', '1/4', ex_arpeggio),
     ('Broken Chords', 'C', '1/8', ex_broken_chord),
     ('Syncopation', 'C', '1/8', ex_syncopation),
+    ('Scale in 3rds', 'C', '1/4', ex_scale_thirds),
+    ('Double Notes', 'C', '1/8', ex_double_notes),
+    ('Rapid Scale', 'C', '1/16', ex_rapid_scale),
+    ('Tremolo', 'C', '1/8', ex_tremolo),
+    ('Extended Arp', 'C', '1/4', ex_arp_extended),
+    ('RH Scale LH Arp', 'C', '1/4', ex_scale_rh_arp_lh),
+    ('RH Chords LH Scale', 'C', '1/8', ex_chord_rh_scale_lh),
 ]
 
 # First 5 exercises: accent/technique in C
@@ -243,7 +360,7 @@ KEYS_MINOR = ['Am', 'Em', 'Bm', 'Dm', 'Gm', 'Cm', 'Fm']
 
 for key in KEYS_MINOR:
     base_key = key[:-1]  # 'Am' -> 'A'
-    for pat_name, _, unit, pat_func in PATTERNS[:5]:  # fewer patterns for minor
+    for pat_name, _, unit, pat_func in PATTERNS[:10]:  # most patterns for minor
         title = f"Thomas: {key} {pat_name}"
         try:
             rh, lh = pat_func(base_key)
