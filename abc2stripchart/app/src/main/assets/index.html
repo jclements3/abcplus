@@ -534,6 +534,10 @@ function getCat(drill) {
   if (n >= 1203 && n <= 1214) return 'Adv h: Combined';
   if (n >= 1215 && n <= 1221) return 'Adv i: Connecting';
   if (n >= 1300 && n <= 1399) return 'Lever Harp Technique';
+  if (n >= 1400 && n <= 1404) return 'Thomas: Accent/Touch';
+  if (n >= 1405 && n <= 1500) return 'Thomas: Major Keys';
+  if (n >= 1501 && n <= 1540) return 'Thomas: Minor Keys';
+  if (n >= 1541 && n <= 1599) return 'Thomas: Glissando';
   if (n >= 2001 && n <= 2004) return 'Trefoil Eb';
   if (n >= 2005 && n <= 2008) return 'Trefoil C';
   if (n >= 3000) return 'Hymns';
@@ -680,7 +684,7 @@ document.getElementById('lib-search').addEventListener('input', function() {
 positionPlayhead();
 
 // Load advanced drills and hymnal data, then build library
-var loaded = 0, toLoad = 3;
+var loaded = 0, toLoad = 4;
 function onDataLoaded() {
   loaded++;
   if (loaded >= toLoad) {
@@ -705,6 +709,20 @@ xhr1.onload = function() {
 };
 xhr1.onerror = function() { onDataLoaded(); };
 xhr1.send();
+
+// Load Thomas 280
+var xhr4 = new XMLHttpRequest();
+xhr4.open('GET', 'thomas_280.json', true);
+xhr4.onload = function() {
+  if (xhr4.status === 200) {
+    var data = JSON.parse(xhr4.responseText);
+    for (var i = 0; i < data.length; i++) DRILLS.push(data[i]);
+    console.log('Loaded ' + data.length + ' Thomas exercises');
+  }
+  onDataLoaded();
+};
+xhr4.onerror = function() { onDataLoaded(); };
+xhr4.send();
 
 // Load lever drills
 var xhr3 = new XMLHttpRequest();
