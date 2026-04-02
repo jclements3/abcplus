@@ -533,6 +533,7 @@ function getCat(drill) {
   if (n >= 1201 && n <= 1202) return 'Adv g: Hand Interchange';
   if (n >= 1203 && n <= 1214) return 'Adv h: Combined';
   if (n >= 1215 && n <= 1221) return 'Adv i: Connecting';
+  if (n >= 1300 && n <= 1399) return 'Lever Harp Technique';
   if (n >= 2001 && n <= 2004) return 'Trefoil Eb';
   if (n >= 2005 && n <= 2008) return 'Trefoil C';
   if (n >= 3000) return 'Hymns';
@@ -679,7 +680,7 @@ document.getElementById('lib-search').addEventListener('input', function() {
 positionPlayhead();
 
 // Load advanced drills and hymnal data, then build library
-var loaded = 0, toLoad = 2;
+var loaded = 0, toLoad = 3;
 function onDataLoaded() {
   loaded++;
   if (loaded >= toLoad) {
@@ -704,6 +705,20 @@ xhr1.onload = function() {
 };
 xhr1.onerror = function() { onDataLoaded(); };
 xhr1.send();
+
+// Load lever drills
+var xhr3 = new XMLHttpRequest();
+xhr3.open('GET', 'lever_drills.json', true);
+xhr3.onload = function() {
+  if (xhr3.status === 200) {
+    var data = JSON.parse(xhr3.responseText);
+    for (var i = 0; i < data.length; i++) DRILLS.push(data[i]);
+    console.log('Loaded ' + data.length + ' lever drills');
+  }
+  onDataLoaded();
+};
+xhr3.onerror = function() { onDataLoaded(); };
+xhr3.send();
 
 // Load hymnal
 var xhr2 = new XMLHttpRequest();
